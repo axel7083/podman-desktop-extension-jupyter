@@ -2,7 +2,7 @@
   "name": "jupyter",
   "displayName": "Jupyter",
   "description": "Manage jupyter notebooks",
-  "version": "0.1.0-next",
+  "version": "0.2.0-next",
   "publisher": "axel7083",
   "engines": {
     "node": ">=20.9.0",
