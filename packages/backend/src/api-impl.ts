@@ -1,16 +1,32 @@
-import * as podmanDesktopApi from '@podman-desktop/api';
-import type { HelloWorldApi } from '/@shared/src/HelloWorldApi';
+import { type OpenDialogOptions, Uri, window, env, ProgressLocation } from '@podman-desktop/api';
+import { JupyterApi } from '/@shared/src/JupyterApi';
+import type { NewNotebookOptions, Notebook } from '/@shared/src/models/Notebook';
+import type { Notebooks } from './managers/Notebooks';
 
-/**
- * HelloWorldApi is an interface that defines the abstracted class for the HelloWorldApi, it is a requirement to match this interface to your API implementation.
- *
- * The below code can be used with the podmanDesktopApi to showcase the usage of the API, as well as any other "backend" code that you may want to run.
- */
-export class helloWorldApi implements HelloWorldApi {
-  constructor(private readonly extensionContext: podmanDesktopApi.ExtensionContext) {}
+export class JupyterApiImpl extends JupyterApi {
+  constructor(private notebooks: Notebooks) {
+    super();
+  }
 
-  async hello(): Promise<void> {
-    // Showcase the usage of the podmanDesktopApi by notifying the user with a message.
-    await podmanDesktopApi.window.showInformationMessage('Hi from the backend package!');
+  override async getNotebooks(): Promise<Notebook[]> {
+    return [];
+  }
+
+  override newNotebook(options: NewNotebookOptions): Promise<Notebook> {
+    return window.withProgress(
+      {
+        location: ProgressLocation.TASK_WIDGET,
+        title: 'Creating Jupyter Notebook',
+      },
+      () => this.notebooks.newSCIPYNotebook(options),
+    );
+  }
+
+  override openNotebook(notebook: Notebook): Promise<boolean> {
+    return env.openExternal(Uri.parse(`http://localhost:${notebook.hostPort}/lab?token=${notebook.token}`));
+  }
+
+  async openDialog(options?: OpenDialogOptions): Promise<Uri[] | undefined> {
+    return await window.showOpenDialog(options);
   }
 }

@@ -1,18 +1,17 @@
 {
-  "name": "helloworld",
-  "displayName": "Hello World",
-  "description": "Hello World template for using webview",
-  "version": "1.4.0-next",
-  "icon": "icon.png",
-  "publisher": "yourusername",
-  "private": true,
+  "name": "jupyter",
+  "displayName": "Jupyter",
+  "description": "Manage jupyter notebooks",
+  "version": "0.1.0-next",
+  "publisher": "axel7083",
   "engines": {
     "node": ">=20.9.0",
-    "npm": ">=10.2.3"
+    "npm": ">=10.2.3",
+    "podman-desktop": ">=1.12.0"
   },
   "scripts": {
-    "build": "concurrently \"yarn --cwd packages/frontend build\" \"yarn --cwd packages/backend build\"",
-    "watch": "concurrently \"yarn --cwd packages/frontend watch\" \"yarn --cwd packages/backend watch\"",
+    "build": "concurrently \"cd packages/frontend && npm run build\" \"cd packages/backend && npm run build\"",
+    "watch": "concurrently \"cd packages/frontend && npm run watch\" \"cd packages/backend && npm run watch\"",
     "format:check": "prettier --check \"**/src/**/*.{ts,svelte}\"",
     "format:fix": "prettier --write \"**/src/**/*.{ts,svelte}\"",
     "lint:check": "eslint . --ext js,ts,tsx",
@@ -30,7 +29,7 @@
   "resolutions": {
     "string-width": "^4.2.0",
     "wrap-ansi": "^7.0.0"
-},
+  },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.1.0",
     "@typescript-eslint/parser": "^8.0.1",
@@ -55,8 +54,7 @@
   },
   "workspaces": {
     "packages": [
-      "packages/*",
-      "tests/*"
+      "packages/*"
     ]
   },
   "dependencies": {

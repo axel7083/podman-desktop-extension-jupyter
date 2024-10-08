@@ -1,13 +1,24 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import type { Webview } from '@podman-desktop/api';
-
-/**
- * The below file creatse a "RPC" like communication between the webview and the browser.
- * Being able to provide a simple wall to call functions between the backend and frontend portions of the extension.
+/**********************************************************************
+ * Copyright (C) 2024 Red Hat, Inc.
  *
- * Keep note that there is a timeout of 10 seconds for each request, if the request is not answered in that time, it will be rejected.
- * So calls that take longer than 10 seconds should be avoided, this can be adjusted by increasing the timeout.
- */
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ***********************************************************************/
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import type { Webview, Disposable } from '@podman-desktop/api';
+import { noTimeoutChannels } from './NoTimeoutChannels';
 
 export interface IMessage {
   id: number;
@@ -40,15 +51,18 @@ export function isMessageResponse(content: unknown): content is IMessageResponse
   return isMessageRequest(content) && 'status' in content;
 }
 
-export class RpcExtension {
+export class RpcExtension implements Disposable {
+  #webviewDisposable: Disposable | undefined;
   methods: Map<string, (...args: unknown[]) => Promise<unknown>> = new Map();
 
-  constructor(private webview: Webview) {
-    this.init();
+  constructor(private webview: Webview) {}
+
+  dispose(): void {
+    this.#webviewDisposable?.dispose();
   }
 
-  init() {
-    this.webview.onDidReceiveMessage(async (message: unknown) => {
+  init(): void {
+    this.#webviewDisposable = this.webview.onDidReceiveMessage(async (message: unknown) => {
       if (!isMessageRequest(message)) {
         console.error('Received incompatible message.', message);
         return;
@@ -91,7 +105,7 @@ export class RpcExtension {
     });
   }
 
-  registerInstance<T extends Record<keyof T, UnaryRPC>>(classType: { new (...args: any[]): T }, instance: T) {
+  registerInstance<T extends Record<keyof T, UnaryRPC>>(classType: new (...args: any[]) => T, instance: T): void {
     const methodNames = Object.getOwnPropertyNames(classType.prototype).filter(
       name => name !== 'constructor' && typeof instance[name as keyof T] === 'function',
     );
@@ -102,7 +116,7 @@ export class RpcExtension {
     });
   }
 
-  register(channel: string, method: (body: any) => Promise<any>) {
+  register(channel: string, method: (body: any) => Promise<any>): void {
     this.methods.set(channel, method);
   }
 }
@@ -127,7 +141,7 @@ export class RpcBrowser {
     this.init();
   }
 
-  init() {
+  init(): void {
     this.window.addEventListener('message', (event: MessageEvent) => {
       const message = event.data;
       if (isMessageResponse(message)) {
@@ -187,21 +201,25 @@ export class RpcBrowser {
       args: args,
     } as IMessageRequest);
 
-    setTimeout(() => {
-      const { reject } = this.promises.get(requestId) ?? {};
-      if (!reject) return;
-      reject(new Error('Timeout'));
-      this.promises.delete(requestId);
-    }, 10000); // 10 seconds
+    // Add some timeout
+    if (!noTimeoutChannels.includes(channel)) {
+      setTimeout(() => {
+        const { reject } = this.promises.get(requestId) ?? {};
+        if (!reject) return;
+        reject(new Error('Timeout'));
+        this.promises.delete(requestId);
+      }, 5000);
+    }
 
     // Create a Promise
     return promise;
   }
 
+  // TODO(feloy) need to subscribe several times?
   subscribe(msgId: string, f: (msg: any) => void): Subscriber {
     this.subscribers.set(msgId, f);
     return {
-      unsubscribe: () => {
+      unsubscribe: (): void => {
         this.subscribers.delete(msgId);
       },
     };
