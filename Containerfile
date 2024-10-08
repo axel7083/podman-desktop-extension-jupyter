@@ -1,9 +1,10 @@
 FROM scratch as builder
-COPY dist/ /extension/dist
-COPY package.json /extension/
-COPY icon.png /extension/
+COPY packages/backend/dist/ /extension/dist
+COPY packages/backend/package.json /extension/
+COPY packages/backend/media/ /extension/media
+COPY LICENSE /extension/
+COPY packages/backend/icon.png /extension/
 COPY README.md /extension/
-
 FROM scratch
 
 LABEL org.opencontainers.image.title="Jupyter Notebook" \
