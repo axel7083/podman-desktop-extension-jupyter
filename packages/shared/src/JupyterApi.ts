@@ -9,4 +9,10 @@ export abstract class JupyterApi {
   abstract newNotebook(options: NewNotebookOptions): Promise<Notebook>;
 
   abstract openNotebook(notebook: Notebook): Promise<boolean>;
+
+  abstract stopNotebook(notebook: Notebook): Promise<void>;
+
+  abstract startNotebook(notebook: Notebook): Promise<void>;
+
+  abstract deleteNotebook(notebook: Notebook): Promise<void>;
 }

@@ -1,0 +1,27 @@
+<script lang="ts">
+export let size = '40';
+export let solid: boolean = false;
+
+const fg = solid ? 'white' : 'currentColor';
+</script>
+
+<svg
+  width={size}
+  height={size}
+  style={$$props.style}
+  class={$$props.class}
+  viewBox="0 0 32 32"
+  xmlns="http://www.w3.org/2000/svg">
+  <title>file_type_jupyter</title>
+  <path d="M26.233,3.588A1.69,1.69,0,1,1,24.473,2a1.67,1.67,0,0,1,1.76,1.585Z" style="fill:#767677"></path>
+  <path
+    fill={fg}
+    d="M16.375,23.111c-4.487,0-8.43-1.61-10.469-3.988a11.162,11.162,0,0,0,20.938,0C24.81,21.5,20.882,23.111,16.375,23.111Z"
+  ></path>
+  <path
+    fill={fg}
+    d="M16.375,7.648c4.487,0,8.43,1.61,10.469,3.988a11.162,11.162,0,0,0-20.938,0C7.945,9.253,11.869,7.648,16.375,7.648Z"
+  ></path>
+  <path fill={fg} d="M10.2,27.739a2.109,2.109,0,1,1-.2-.8,2.129,2.129,0,0,1,.2.8Z"></path>
+  <path fill={fg} d="M6.416,7.106A1.226,1.226,0,1,1,7.608,5.83,1.241,1.241,0,0,1,6.416,7.106Z"></path>
+</svg>

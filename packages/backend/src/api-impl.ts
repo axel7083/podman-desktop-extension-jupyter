@@ -12,6 +12,18 @@ export class JupyterApiImpl extends JupyterApi {
     return this.notebooks.getAll();
   }
 
+  override async startNotebook(notebook: Notebook): Promise<void> {
+    return this.notebooks.startNotebook(notebook);
+  }
+
+  override async stopNotebook(notebook: Notebook): Promise<void> {
+    return this.notebooks.stopNotebook(notebook);
+  }
+
+  override async deleteNotebook(notebook: Notebook): Promise<void> {
+    return this.notebooks.deleteNotebook(notebook);
+  }
+
   override newNotebook(options: NewNotebookOptions): Promise<Notebook> {
     return window.withProgress(
       {

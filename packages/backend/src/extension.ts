@@ -21,5 +21,5 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
 }
 
 export async function deactivate(): Promise<void> {
-  console.log('stopping hello world extension');
+  console.log('stopping jupyter extension');
 }

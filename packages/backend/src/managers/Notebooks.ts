@@ -19,8 +19,8 @@ export const NOTEBOOK_TOKEN_LABEL = 'notebook-token';
 type NotebookContainerInfo = ContainerInfo & {
   Labels: {
     NOTEBOOK_TOKEN_LABEL: string;
-  }
-}
+  };
+};
 
 export class Notebooks extends Publisher<Notebook[]> implements Disposable {
   #disposables: Disposable[];
@@ -33,18 +33,17 @@ export class Notebooks extends Publisher<Notebook[]> implements Disposable {
   }
 
   getAll(): Notebook[] {
-    return [];
+    return Array.from(this.#notebooks.values());
   }
 
   init(): void {
     this.#disposables.push(
       containerEngine.onEvent((event: ContainerJSONEvent) => {
-        console.log('Notebooks event', event);
         if (event.status === 'start') {
           return this.onContainerStart(event.id);
         }
 
-        if(this.#notebooks.has(event.id)) {
+        if (this.#notebooks.has(event.id)) {
           switch (event.status) {
             case 'remove':
               this.#notebooks.delete(event.id);
@@ -71,12 +70,10 @@ export class Notebooks extends Publisher<Notebook[]> implements Disposable {
   async refresh(): Promise<void> {
     const containers = await containerEngine.listContainers();
     for (const container of containers) {
-      if(!this.isNotebook(container)) {
-        console.warn(`container ${container.Id} is not a notebook`)
+      if (!this.isNotebook(container)) {
         continue;
       }
 
-      console.log(`Notebook adding ${container.Id} to notebooks`);
       const notebook = this.fromNotebookContainerInfo(container);
       this.#notebooks.set(container.Id, notebook);
     }
@@ -86,7 +83,7 @@ export class Notebooks extends Publisher<Notebook[]> implements Disposable {
   protected async onContainerStart(containerId: string): Promise<void> {
     const containerInfo = await this.getContainerInfo(containerId);
     // ignore non-notebooks
-    if(!this.isNotebook(containerInfo)) return;
+    if (!this.isNotebook(containerInfo)) return;
 
     // convert the containerInfo to Notebooks
     const notebook = this.fromNotebookContainerInfo(containerInfo);
@@ -97,26 +94,39 @@ export class Notebooks extends Publisher<Notebook[]> implements Disposable {
   protected async getContainerInfo(containerId: string): Promise<ContainerInfo> {
     const containers = await containerEngine.listContainers();
     const result = containers.find(container => container.Id === containerId);
-    if(!result) throw new Error('container info not found');
+    if (!result) throw new Error('container info not found');
     return result;
   }
 
   protected isNotebook(containerInfo: ContainerInfo): containerInfo is NotebookContainerInfo {
-    if(!containerInfo.Labels) return false;
+    if (!containerInfo.Labels) return false;
     return NOTEBOOK_TOKEN_LABEL in containerInfo.Labels;
   }
 
   protected fromNotebookContainerInfo(containerInfo: NotebookContainerInfo): Notebook {
-      return {
-        container: {
-          engineId: containerInfo.engineId,
-          id: containerInfo.Id,
-        },
-        token: containerInfo.Labels.NOTEBOOK_TOKEN_LABEL,
-        name: containerInfo.Names[0] ?? '<unknown>',
-        hostPort: containerInfo.Ports[0].PublicPort ?? -1,
-        status: containerInfo.State === 'running' ? 'running' : 'stopped',
-      };
+    return {
+      container: {
+        engineId: containerInfo.engineId,
+        id: containerInfo.Id,
+      },
+      token: containerInfo.Labels[NOTEBOOK_TOKEN_LABEL],
+      name: containerInfo.Names[0] ?? '<unknown>',
+      hostPort: containerInfo.Ports[0].PublicPort ?? -1,
+      status: containerInfo.State === 'running' ? 'running' : 'stopped',
+    };
+  }
+
+  async stopNotebook(notebook: Notebook): Promise<void> {
+    return containerEngine.stopContainer(notebook.container.engineId, notebook.container.id);
+  }
+
+  async startNotebook(notebook: Notebook): Promise<void> {
+    return containerEngine.startContainer(notebook.container.engineId, notebook.container.id);
+  }
+
+  async deleteNotebook(notebook: Notebook): Promise<void> {
+    await this.stopNotebook(notebook);
+    return containerEngine.deleteContainer(notebook.container.engineId, notebook.container.id);
   }
 
   async newSCIPYNotebook(options?: NewNotebookOptions): Promise<Notebook> {
