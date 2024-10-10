@@ -28,3 +28,7 @@ export const getRouterState = (): RouterState => {
   if (isRouterState(state)) return state;
   return { url: '/' };
 };
+
+Object.defineProperty(window, 'jupyterClient', {
+  value: jupyterClient,
+});

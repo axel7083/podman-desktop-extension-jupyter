@@ -3,6 +3,7 @@ import { NavPage, EmptyScreen, Button } from '@podman-desktop/ui-svelte';
 import { faPlusCircle, faServer } from '@fortawesome/free-solid-svg-icons';
 import { router } from 'tinro';
 import Notebooks from '/@/lib/table/Notebooks.svelte';
+import { notebooks } from '/@/stores/notebooks';
 
 function navigateToNewNotebook(): void {
   router.goto('/notebook/new');
@@ -15,7 +16,7 @@ function navigateToNewNotebook(): void {
   </div>
   <div slot="content" class="flex flex-col min-w-full min-h-full space-y-5">
     <div class="flex w-full h-full">
-      <Notebooks>
+      <Notebooks data={$notebooks}>
         <svelte:fragment slot="empty-screen">
           <EmptyScreen icon={faServer} title="Not implemented" message="Not implemented">
             <div class="flex gap-2 justify-center">

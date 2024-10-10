@@ -5,7 +5,7 @@ import type { Notebook } from '/@shared/src/models/Notebook';
 const columns: TableColumn<Notebook>[] = [];
 
 const row = new TableRow<Notebook>({});
-let data: (Notebook & { selected?: boolean })[];
+export let data: (Notebook & { selected?: boolean })[];
 </script>
 
 {#if data?.length > 0}

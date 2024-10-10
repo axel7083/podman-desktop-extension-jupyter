@@ -12,7 +12,8 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
   const rpcExtension = new RpcExtension(panel.webview);
   extensionContext.subscriptions.push(rpcExtension);
 
-  const notebooks = new Notebooks();
+  const notebooks = new Notebooks(panel.webview);
+  notebooks.init();
   extensionContext.subscriptions.push(notebooks);
 
   rpcExtension.init();

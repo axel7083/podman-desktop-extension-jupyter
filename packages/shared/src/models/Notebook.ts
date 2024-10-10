@@ -6,6 +6,7 @@ export interface NewNotebookOptions {
 }
 
 export interface Notebook {
+  status: 'running' | 'stopped',
   container: {
     engineId: string;
     id: string;

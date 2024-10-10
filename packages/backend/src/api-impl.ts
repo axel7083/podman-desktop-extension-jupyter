@@ -9,7 +9,7 @@ export class JupyterApiImpl extends JupyterApi {
   }
 
   override async getNotebooks(): Promise<Notebook[]> {
-    return [];
+    return this.notebooks.getAll();
   }
 
   override newNotebook(options: NewNotebookOptions): Promise<Notebook> {
