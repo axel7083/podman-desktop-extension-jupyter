@@ -63,12 +63,18 @@ function removeHostMountOptions(options: HostMountOptions): void {
   hostMountOptions = hostMountOptions.toSpliced(index, 1);
 }
 
+async function openNotebook(): Promise<void> {
+  if(!notebook) throw new Error('cannot open undefined notebook');
+  await jupyterClient.openNotebook(notebook.container.id);
+  router.goto('/');
+}
+
 async function submit(): Promise<void> {
   loading = true;
   try {
     notebook = await jupyterClient.newNotebook({
-      name: $state.snapshot(name),
-      image: $state.snapshot(image),
+      name: $state.snapshot(name) || undefined,
+      image: $state.snapshot(image) || undefined,
       hostMountOptions: $state.snapshot(hostMountOptions),
     });
   } finally {
@@ -163,7 +169,7 @@ async function submit(): Promise<void> {
               <Button
                 title="Open Notebook in the browser"
                 inProgress={loading}
-                on:click={jupyterClient.openNotebook.bind(undefined, notebook.container.id)}
+                on:click={openNotebook}
                 icon={faSquareArrowUpRight}>
                 Open Notebook in the browser
               </Button>
