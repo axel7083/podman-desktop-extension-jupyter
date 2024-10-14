@@ -1,6 +1,8 @@
 ## Jupyter Notebook Extension
 
-This small utility extension allow user to quickly create Jupyter scipy  notebook using the command palette.
+![image](https://github.com/user-attachments/assets/e3ce7e32-0879-4948-a1fc-4f7b4807003b)
+
+This small utility extension allow user to quickly create Jupyter scipy notebook inside [Podman Desktop](https://github.com/containers/podman-desktop).
 
 ## Install
 
