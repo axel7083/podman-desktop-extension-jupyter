@@ -6,35 +6,39 @@ import { jupyterClient } from '/@/api/client';
 
 export let object: Notebook;
 
+let loading: boolean = false;
+$: {
+  loading = ['deleting', 'stopping', 'starting'].includes(object.status);
+}
 function openNotebook(): void {
-  jupyterClient.openNotebook(object).catch((err: unknown) => {
+  jupyterClient.openNotebook(object.container.id).catch((err: unknown) => {
     console.error(err);
   });
 }
 
 function stopNotebook(): void {
-  jupyterClient.stopNotebook(object).catch((err: unknown) => {
+  jupyterClient.stopNotebook(object.container.id).catch((err: unknown) => {
     console.error(err);
   });
 }
 
 function startNotebook(): void {
-  jupyterClient.startNotebook(object).catch((err: unknown) => {
+  jupyterClient.startNotebook(object.container.id).catch((err: unknown) => {
     console.error(err);
   });
 }
 
 function deleteNotebook(): void {
-  jupyterClient.deleteNotebook(object).catch((err: unknown) => {
+  jupyterClient.deleteNotebook(object.container.id).catch((err: unknown) => {
     console.error(err);
   });
 }
 </script>
 
 {#if object.status === 'running'}
-  <ListItemButtonIcon icon={faStop} onClick={stopNotebook} title="Stop AI App" />
-  <ListItemButtonIcon icon={faArrowUpRightFromSquare} onClick={openNotebook} title="Open Notebook" />
+  <ListItemButtonIcon enabled={!loading} icon={faStop} onClick={stopNotebook} title="Stop AI App" />
+  <ListItemButtonIcon enabled={!loading} icon={faArrowUpRightFromSquare} onClick={openNotebook} title="Open Notebook" />
 {:else}
-  <ListItemButtonIcon icon={faPlay} onClick={startNotebook} title="Start Notebook" />
-  <ListItemButtonIcon icon={faTrash} onClick={deleteNotebook} title="Delete Notebook" />
+  <ListItemButtonIcon enabled={!loading} icon={faPlay} onClick={startNotebook} title="Start Notebook" />
+  <ListItemButtonIcon enabled={!loading} icon={faTrash} onClick={deleteNotebook} title="Delete Notebook" />
 {/if}

@@ -18,7 +18,7 @@ function navigateToNewNotebook(): void {
     <div class="flex w-full h-full">
       <Notebooks data={$notebooks}>
         <svelte:fragment slot="empty-screen">
-          <EmptyScreen icon={faServer} title="Not implemented" message="Not implemented">
+          <EmptyScreen icon={faServer} title="No Notebooks" message="You have no running notebooks">
             <div class="flex gap-2 justify-center">
               <Button type="link" on:click={navigateToNewNotebook}>New Notebooks</Button>
             </div>

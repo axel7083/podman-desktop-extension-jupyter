@@ -2,7 +2,7 @@ import type { ExtensionContext } from '@podman-desktop/api';
 import { RpcExtension } from '/@shared/src/messages/MessageProxy';
 import { JupyterApiImpl } from './api-impl';
 import { initWebview } from './utils/webview';
-import { Notebooks } from './managers/Notebooks';
+import { Notebooks } from './managers/notebooks';
 
 export async function activate(extensionContext: ExtensionContext): Promise<void> {
   const panel = await initWebview(extensionContext.extensionUri);

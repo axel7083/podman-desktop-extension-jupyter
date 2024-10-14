@@ -163,7 +163,7 @@ async function submit(): Promise<void> {
               <Button
                 title="Open Notebook in the browser"
                 inProgress={loading}
-                on:click={jupyterClient.openNotebook.bind(undefined, $state.snapshot(notebook))}
+                on:click={jupyterClient.openNotebook.bind(undefined, notebook.container.id)}
                 icon={faSquareArrowUpRight}>
                 Open Notebook in the browser
               </Button>

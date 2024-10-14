@@ -1,7 +1,7 @@
 import { type OpenDialogOptions, Uri, window, env, ProgressLocation } from '@podman-desktop/api';
 import { JupyterApi } from '/@shared/src/JupyterApi';
 import type { NewNotebookOptions, Notebook } from '/@shared/src/models/Notebook';
-import type { Notebooks } from './managers/Notebooks';
+import type { Notebooks } from './managers/notebooks';
 
 export class JupyterApiImpl extends JupyterApi {
   constructor(private notebooks: Notebooks) {
@@ -12,16 +12,16 @@ export class JupyterApiImpl extends JupyterApi {
     return this.notebooks.getAll();
   }
 
-  override async startNotebook(notebook: Notebook): Promise<void> {
-    return this.notebooks.startNotebook(notebook);
+  override async startNotebook(id: string): Promise<void> {
+    return this.notebooks.startNotebook(id);
   }
 
-  override async stopNotebook(notebook: Notebook): Promise<void> {
-    return this.notebooks.stopNotebook(notebook);
+  override async stopNotebook(id: string): Promise<void> {
+    return this.notebooks.stopNotebook(id);
   }
 
-  override async deleteNotebook(notebook: Notebook): Promise<void> {
-    return this.notebooks.deleteNotebook(notebook);
+  override async deleteNotebook(id: string): Promise<void> {
+    return this.notebooks.deleteNotebook(id);
   }
 
   override newNotebook(options: NewNotebookOptions): Promise<Notebook> {
@@ -34,7 +34,8 @@ export class JupyterApiImpl extends JupyterApi {
     );
   }
 
-  override openNotebook(notebook: Notebook): Promise<boolean> {
+  override openNotebook(id: string): Promise<boolean> {
+    const notebook = this.notebooks.get(id);
     return env.openExternal(Uri.parse(`http://localhost:${notebook.hostPort}/lab?token=${notebook.token}`));
   }
 

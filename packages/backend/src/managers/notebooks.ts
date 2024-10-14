@@ -7,7 +7,7 @@ import type {
   Webview,
 } from '@podman-desktop/api';
 import { containerEngine, provider } from '@podman-desktop/api';
-import type { NewNotebookOptions, Notebook } from '/@shared/src/models/Notebook';
+import type { NewNotebookOptions, Notebook, NotebookStatus } from '/@shared/src/models/Notebook';
 import { getImageInfo } from '../utils/images';
 import { getFreeRandomPort } from '../utils/ports';
 import { generateToken } from '../utils/token';
@@ -36,10 +36,16 @@ export class Notebooks extends Publisher<Notebook[]> implements Disposable {
     return Array.from(this.#notebooks.values());
   }
 
+  get(id: string): Notebook {
+    const notebook = this.#notebooks.get(id);
+    if(!notebook) throw new Error(`notebook with id ${id} not found`);
+    return notebook;
+  }
+
   init(): void {
     this.#disposables.push(
       containerEngine.onEvent((event: ContainerJSONEvent) => {
-        if (event.status === 'start') {
+        if (event.status === 'start' && event.Type === 'container') {
           return this.onContainerStart(event.id);
         }
 
@@ -65,6 +71,15 @@ export class Notebooks extends Publisher<Notebook[]> implements Disposable {
     this.refresh().catch((err: unknown) => {
       console.error(err);
     });
+  }
+
+  protected setStatus(id: string, status: NotebookStatus): void {
+    const notebook: Notebook = this.get(id);
+    this.#notebooks.set(id, {
+      ...notebook,
+      status,
+    });
+    this.notify();
   }
 
   async refresh(): Promise<void> {
@@ -116,17 +131,42 @@ export class Notebooks extends Publisher<Notebook[]> implements Disposable {
     };
   }
 
-  async stopNotebook(notebook: Notebook): Promise<void> {
-    return containerEngine.stopContainer(notebook.container.engineId, notebook.container.id);
+  async stopNotebook(id: string): Promise<void> {
+    const notebook = this.get(id);
+    if(!notebook) throw new Error(`notebook with id ${id} not found`);
+    try {
+      this.setStatus(id, 'stopping');
+      await containerEngine.stopContainer(notebook.container.engineId, notebook.container.id);
+    } catch (err: unknown) {
+      console.error(`Something went wrong while stopping notebook ${id}`, err);
+      return this.refresh();
+    }
   }
 
-  async startNotebook(notebook: Notebook): Promise<void> {
-    return containerEngine.startContainer(notebook.container.engineId, notebook.container.id);
+  async startNotebook(id: string): Promise<void> {
+    const notebook = this.get(id);
+    if(!notebook) throw new Error(`notebook with id ${id} not found`);
+    try {
+      this.setStatus(id, 'starting');
+      await containerEngine.startContainer(notebook.container.engineId, notebook.container.id);
+    } catch (err: unknown) {
+      console.error(`Something went wrong while stopping notebook ${id}`, err);
+      return this.refresh();
+    }
   }
 
-  async deleteNotebook(notebook: Notebook): Promise<void> {
-    await this.stopNotebook(notebook);
-    return containerEngine.deleteContainer(notebook.container.engineId, notebook.container.id);
+  async deleteNotebook(id: string): Promise<void> {
+    const notebook = this.get(id);
+    if(!notebook) throw new Error(`notebook with id ${id} not found`);
+
+    await this.stopNotebook(id);
+    try {
+      this.setStatus(id, 'deleting');
+      await containerEngine.deleteContainer(notebook.container.engineId, notebook.container.id);
+    } catch (err: unknown) {
+      console.error(`Something went wrong while deleting notebook ${id}`, err);
+      return this.refresh();
+    }
   }
 
   async newSCIPYNotebook(options?: NewNotebookOptions): Promise<Notebook> {
