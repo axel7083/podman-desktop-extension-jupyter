@@ -1,4 +1,4 @@
-import { type OpenDialogOptions, Uri, window, env, ProgressLocation } from '@podman-desktop/api';
+import { type OpenDialogOptions, Uri, window, env, ProgressLocation, navigation } from '@podman-desktop/api';
 import { JupyterApi } from '/@shared/src/JupyterApi';
 import type { NewNotebookOptions, Notebook } from '/@shared/src/models/Notebook';
 import type { Notebooks } from './managers/notebooks';
@@ -39,7 +39,11 @@ export class JupyterApiImpl extends JupyterApi {
     return env.openExternal(Uri.parse(`http://localhost:${notebook.hostPort}/lab?token=${notebook.token}`));
   }
 
-  async openDialog(options?: OpenDialogOptions): Promise<Uri[] | undefined> {
+  override async openDialog(options?: OpenDialogOptions): Promise<Uri[] | undefined> {
     return await window.showOpenDialog(options);
+  }
+
+  override async openContainer(id: string): Promise<void> {
+    return navigation.navigateToContainer(id);
   }
 }

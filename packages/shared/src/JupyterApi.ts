@@ -15,4 +15,6 @@ export abstract class JupyterApi {
   abstract startNotebook(id: string): Promise<void>;
 
   abstract deleteNotebook(id: string): Promise<void>;
+
+  abstract openContainer(id: string): Promise<void>;
 }

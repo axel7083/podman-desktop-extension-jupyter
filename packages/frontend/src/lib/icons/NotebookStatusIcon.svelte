@@ -2,6 +2,7 @@
 import type { Notebook } from '/@shared/src/models/Notebook';
 import { StatusIcon, Spinner } from '@podman-desktop/ui-svelte';
 import JupyterIcon from '/@/lib/icons/JupyterIcon.svelte';
+import { jupyterClient } from '/@/api/client';
 
 export let object: Notebook;
 
@@ -14,11 +15,11 @@ $: {
 
 function getStatus(): 'RUNNING' | 'STARTING' | 'DEGRADED' | '' {
   switch (object.status) {
-    case "running":
+    case 'running':
       return 'RUNNING';
-    case "deleting":
+    case 'deleting':
       return 'RUNNING';
-    case "stopping":
+    case 'stopping':
       return 'RUNNING';
     case 'stopped':
       return '';
@@ -32,10 +33,9 @@ function getStatus(): 'RUNNING' | 'STARTING' | 'DEGRADED' | '' {
 }
 
 async function navigateToContainer(): Promise<void> {
-  // todo:
+  return jupyterClient.openContainer(object.container.id);
 }
 </script>
-
 
 {#if loading}
   <Spinner class="text-[var(--pd-table-body-text-highlight)]" />
@@ -44,4 +44,3 @@ async function navigateToContainer(): Promise<void> {
     <StatusIcon size={22} status={status} icon={JupyterIcon} />
   </button>
 {/if}
-

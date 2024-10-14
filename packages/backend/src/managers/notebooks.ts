@@ -38,7 +38,7 @@ export class Notebooks extends Publisher<Notebook[]> implements Disposable {
 
   get(id: string): Notebook {
     const notebook = this.#notebooks.get(id);
-    if(!notebook) throw new Error(`notebook with id ${id} not found`);
+    if (!notebook) throw new Error(`notebook with id ${id} not found`);
     return notebook;
   }
 
@@ -133,7 +133,7 @@ export class Notebooks extends Publisher<Notebook[]> implements Disposable {
 
   async stopNotebook(id: string): Promise<void> {
     const notebook = this.get(id);
-    if(!notebook) throw new Error(`notebook with id ${id} not found`);
+    if (!notebook) throw new Error(`notebook with id ${id} not found`);
     try {
       this.setStatus(id, 'stopping');
       await containerEngine.stopContainer(notebook.container.engineId, notebook.container.id);
@@ -145,7 +145,7 @@ export class Notebooks extends Publisher<Notebook[]> implements Disposable {
 
   async startNotebook(id: string): Promise<void> {
     const notebook = this.get(id);
-    if(!notebook) throw new Error(`notebook with id ${id} not found`);
+    if (!notebook) throw new Error(`notebook with id ${id} not found`);
     try {
       this.setStatus(id, 'starting');
       await containerEngine.startContainer(notebook.container.engineId, notebook.container.id);
@@ -157,7 +157,7 @@ export class Notebooks extends Publisher<Notebook[]> implements Disposable {
 
   async deleteNotebook(id: string): Promise<void> {
     const notebook = this.get(id);
-    if(!notebook) throw new Error(`notebook with id ${id} not found`);
+    if (!notebook) throw new Error(`notebook with id ${id} not found`);
 
     await this.stopNotebook(id);
     try {
