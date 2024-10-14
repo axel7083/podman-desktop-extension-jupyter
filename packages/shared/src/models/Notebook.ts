@@ -5,7 +5,10 @@ export interface NewNotebookOptions {
   hostMountOptions: HostMountOptions[];
 }
 
+export type NotebookStatus = 'stopped' | 'running' | 'deleting' | 'stopping' | 'error' | 'starting';
+
 export interface Notebook {
+  status: NotebookStatus;
   container: {
     engineId: string;
     id: string;

@@ -2,7 +2,7 @@ import type { ExtensionContext } from '@podman-desktop/api';
 import { RpcExtension } from '/@shared/src/messages/MessageProxy';
 import { JupyterApiImpl } from './api-impl';
 import { initWebview } from './utils/webview';
-import { Notebooks } from './managers/Notebooks';
+import { Notebooks } from './managers/notebooks';
 
 export async function activate(extensionContext: ExtensionContext): Promise<void> {
   const panel = await initWebview(extensionContext.extensionUri);
@@ -12,7 +12,8 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
   const rpcExtension = new RpcExtension(panel.webview);
   extensionContext.subscriptions.push(rpcExtension);
 
-  const notebooks = new Notebooks();
+  const notebooks = new Notebooks(panel.webview);
+  notebooks.init();
   extensionContext.subscriptions.push(notebooks);
 
   rpcExtension.init();
@@ -20,5 +21,5 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
 }
 
 export async function deactivate(): Promise<void> {
-  console.log('stopping hello world extension');
+  console.log('stopping jupyter extension');
 }

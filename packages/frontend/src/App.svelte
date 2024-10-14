@@ -23,7 +23,7 @@ onMount(() => {
   <main class="flex flex-col w-screen h-screen overflow-hidden bg-[var(--pd-content-bg)]">
     <div class="flex flex-row w-full h-full overflow-hidden">
       <Route path="/" breadcrumb="home">
-        <NewNotebook />
+        <Home />
       </Route>
       <Route path="/notebook/new" breadcrumb="New Notebook">
         <NewNotebook />
